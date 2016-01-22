@@ -1,11 +1,16 @@
 FROM ubuntu:14.04
 MAINTAINER Scott Harvey <scott@civilmaps.com>
 
+
+
+
+
 #Python installation
 RUN sudo apt-get update && apt-get install -y python-pip \
     wget \
     unzip
 RUN sudo apt-get install -y software-properties-common
+
 
 #Install wine
 RUN sudo add-apt-repository ppa:ubuntu-wine/ppa
@@ -14,17 +19,17 @@ RUN sudo apt-get update
 RUN sudo apt-get install -y wine
 
 #Lastools installation
-WORKDIR /
-ADD http://www.cs.unc.edu/~isenburg/lastools/download/lastools.zip /home/
-#RUN mv lastools.zip home/
-RUN unzip /home/lastools.zip
-#RUN mv LAStools home/
+RUN wget http://www.cs.unc.edu/~isenburg/lastools/download/lastools.zip
+RUN mv lastools.zip home/
+RUN unzip home/lastools.zip
+RUN mv LAStools home/
 
 #Link LAStools
 RUN mkdir -p /mfs/tools/
 RUN ln -s /home/LAStools /mfs/tools/LAStools
 
 #RUN sudo ldconfig
+
 
 #Git setup
 RUN sudo apt-get install -y git
@@ -104,6 +109,9 @@ RUN mv points2grid /opt/
 RUN mkdir /opt/points2grid/makefiles/
 RUN cd /opt/points2grid/makefiles/ && cmake .. && make && sudo make install
 
+
+
+
 #PDAL
 RUN git clone git@github.com:PDAL/PDAL.git pdal
 RUN mv pdal /opt/
@@ -145,4 +153,15 @@ VOLUME /var/log/docker
 ADD start.sh /start.sh
 RUN chmod +x /start.sh
 
-#CMD ["python","/mfs/src/prod/tests/tiling_te
+#CMD ["python","/mfs/src/prod/tests/tiling_tests/tiling_map_local.py"]
+
+
+# Launch memcached when launching the container
+#CMD ["/usr/bin/memcached", "-d", "-u", "memcache", "-v"]
+#CMD ["/bin/bash"]
+#RUN mkdir /etc/service/memcached
+
+#ADD start.sh /etc/service/memcached/run
+
+#ADD start.sh /start.sh
+#CMD ["/bin/bash", "start.sh"]
